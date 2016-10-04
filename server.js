@@ -3,10 +3,6 @@ var app = express();
 
 var port = process.env.PORT || 8080;
 
-app.get( '/route', function( req, res ) {
-	res.send( app._router.stack );
-} );
-
 app.get( "/new/:url(*)", function( req, res ) {
 	// used to shorten url and return json data
 	var url = req.params.url;
