@@ -20,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/shkabo/fcc-url-shortener/issues"
   },
-  "homepage": "https://github.com/shkabo/fcc-url-shortener#readme"
+  "homepage": "https://github.com/shkabo/fcc-url-shortener#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "supertest": "^2.0.0"
+  }
 }
