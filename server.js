@@ -1,7 +1,23 @@
 var express = require( "express" );
 var app = express();
+var mongo = require("mongodb").MongoClient;
+var mongourl = require('./mongourl');
 
 var port = process.env.PORT || 8080;
+
+
+function urlExists(url) {
+    mongo.connect(mongourl.url, function(err, db) {
+        if (err) return console.error(err);
+        db.collection('url').find({
+            "original_url" : url
+        }).toArray(function(err, doc) {
+            if (err) return console.error(err);
+            db.close();
+            return doc;
+        });
+    });
+}
 
 app.get( "/new/:url(*)", function( req, res ) {
     // used to shorten url and return json data
@@ -14,7 +30,7 @@ app.get( "/new/:url(*)", function( req, res ) {
             } );
 
     } else {
-
+        //check if url exists in db
         res.status( 200 ).send( url );
     }
 

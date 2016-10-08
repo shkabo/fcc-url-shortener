@@ -22,7 +22,8 @@
   },
   "homepage": "https://github.com/shkabo/fcc-url-shortener#readme",
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "mongodb": "^2.2.10"
   },
   "devDependencies": {
     "supertest": "^2.0.0"
