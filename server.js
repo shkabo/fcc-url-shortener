@@ -70,6 +70,9 @@ app.get("/new/:url(*)", function(req, res) {
         //check if url exists in db
         if (urlExists(url) === []) {
             console.log('doesn\'t exist');
+            //if url is not found add it
+            var maxId = maxShortNum();
+            addUrl(url, maxId['shortId']+1);
         }
         res.status(200).send(url);
     }
