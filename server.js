@@ -1,6 +1,7 @@
 var express = require("express");
 var app = express();
-var mongo = require("mongodb").MongoClient;
+var mon = require("mongodb");
+var mongo = mon.MongoClient;
 var mongourl = require('./mongourl');
 
 var port = process.env.PORT || 8080;
@@ -67,21 +68,71 @@ app.get("/new/:url(*)", function(req, res) {
                 "error": "Wrong url format. Make sure you have a valid protocol and real site."
             });
     } else {
-        //check if url exists in db
-        if (urlExists(url) === []) {
-            console.log('doesn\'t exist');
-            //if url is not found add it
-            var maxId = maxShortNum();
-            addUrl(url, maxId['shortId']+1);
-        }
-        res.status(200).send(url);
+        mongo.connect(mongourl.url, function(err, db) {
+            if (err) throw console.error(err);
+
+            var collection = db.collection('url');
+
+            collection.find({
+                "original_url": url
+            }).toArray(function(err, doc) {
+                if (err) return console.error(err);
+
+                if (doc.length > 0) {
+                    res.status(200).json({ original_url: doc[0].original_url, short_url: req.headers.host + '/' + doc[0]._id });
+
+                    db.close();
+                    return;
+                }
+
+                collection.insertOne({ original_url: url }, function(err, ins) {
+                    if (err) return console.error(err);
+
+                    if (ins.insertedCount > 0) {
+                        res.status(200).json({ original_url: url, short_url: req.headers.host + '/' + ins.insertedId });
+
+                        db.close();
+                        return;
+                    }
+                });
+            });
+
+        });
     }
 
 });
 
 app.get("/:url", function(req, res) {
     // used to redirect to shortened url
-    res.send(req.params.url);
+    //res.send(req.params.url);
+    var urlArg = req.params.url
+    if (req.params.url.length === 24) {
+
+        mongo.connect(mongourl.url, function(err, db) {
+            if (err) throw console.error(err);
+
+            var collection = db.collection('url');
+
+            collection.find({
+                _id: new mon.ObjectId(req.params.url)
+            }).toArray(function(err, doc) {
+
+                console.log(doc);
+                if (doc.length > 0) {
+                    res.status(200).redirect(doc[0].original_url);
+                    db.close();
+                    return;
+                } else {
+                    res.redirect('/new/');
+
+                    db.close();
+                    return;
+                }
+            });
+        });
+    } else {
+        res.redirect('/new/');
+    }
 });
 
 
